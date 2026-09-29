@@ -1,5 +1,11 @@
 {
     "java.configuration.updateBuildConfiguration": "automatic",
     "java.debug.settings.onBuildFailureProceed": true,
-    "java.compile.nullAnalysis.mode": "automatic"
+    "java.compile.nullAnalysis.mode": "automatic",
+    "java.test.config": {
+    "vmArgs": [
+      "--add-modules=jdk.incubator.vector",
+      "--enable-preview"
+    ]
+  }
 }
