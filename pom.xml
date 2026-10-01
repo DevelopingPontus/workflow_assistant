@@ -55,6 +55,17 @@
       <classifier>${os.detected.name}-${os.detected.arch}</classifier>
       <version>${jlama.version}</version>
     </dependency>
+
+    <dependency>
+      <groupId>org.modeljars</groupId>
+      <artifactId>modeljars</artifactId>
+      <version>0.1.54</version>
+    </dependency>
+    <dependency>
+      <groupId>org.modeljars.huggingface</groupId>
+      <artifactId>king3djbl.nexus-medical-gguf.q4_k_m</artifactId>
+      <version>1.0.0-q4_k_m.1</version>
+    </dependency>
   </dependencies>
 
 
@@ -82,19 +93,14 @@
           <artifactId>maven-compiler-plugin</artifactId>
           <version>3.8.0</version>
             <configuration>
-                <fork>true</fork>
-                <compilerArgs>
-                    <arg>--add-modules</arg>
-                    <arg>jdk.incubator.vector</arg>
-                </compilerArgs>
-                <executable>${java.home}/bin/javac</executable>
+              <arg>--add-modules=jdk.incubator.vector</arg>
             </configuration>
         </plugin>
         <plugin>
           <artifactId>maven-surefire-plugin</artifactId>
           <version>3.6.0</version>            
           <configuration>
-                <argLine>--add-modules=jdk.incubator.vector --enable-preview</argLine>
+                <argLine>--add-modules=jdk.incubator.vector  --enable-native-access=ALL-UNNAMED -Xmx6g</argLine>
             </configuration>
         </plugin>
         <plugin>

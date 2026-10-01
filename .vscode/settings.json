@@ -2,10 +2,13 @@
     "java.configuration.updateBuildConfiguration": "automatic",
     "java.debug.settings.onBuildFailureProceed": true,
     "java.compile.nullAnalysis.mode": "automatic",
+    "java.debug.settings.vmArgs": "--add-modules=jdk.incubator.vector --enable-native-access=ALL-UNNAMED -Xmx6g",
     "java.test.config": {
-    "vmArgs": [
-      "--add-modules=jdk.incubator.vector",
-      "--enable-preview"
-    ]
-  }
-}
+        "vmArgs": [
+            "--add-modules=jdk.incubator.vector",
+            "--enable-preview",
+            "--enable-native-access=ALL-UNNAMED",
+            "-Xmx6g"
+        ]
+    }
+}   

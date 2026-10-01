@@ -1,7 +1,6 @@
 package com.example.chasky;
 
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 
