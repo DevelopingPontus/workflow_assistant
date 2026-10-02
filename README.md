@@ -2,11 +2,11 @@
 
 Be done with it.
 
-This project is a workflow assistant that uses AI to define goals and when they apply in the prosess. It is a CLI application you can have at your side while working for best utilization of your time.
+This project is a workflow assistant that helps the user work in a sustainable way. It uses a embedded AI model that communicates with the user via email. 
 
 ## The plan
 
-Use AI to split documents into sections that relate to eachother. Make the document a living document that only shows needed context at every time.
+This is a CLI application but for the AI model to use with the goal of supporting the users work efforts.
 
 ## Classes
 
@@ -14,4 +14,4 @@ I'll make them as I find the use for them. Super classes for objects that are a 
 
 ## Interaction
 
-A CLI interface with options for operations like add new document, split document, add tags to sections, get sections with specific tags and CRUD operations.
+The user will receive emails from the application. The user will be able to respond to those emails and the AI will be able to sugest actions based on logged work.

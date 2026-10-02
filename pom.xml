@@ -66,6 +66,20 @@
       <artifactId>king3djbl.nexus-medical-gguf.q4_k_m</artifactId>
       <version>1.0.0-q4_k_m.1</version>
     </dependency>
+
+    <!-- Source: https://mvnrepository.com/artifact/org.eclipse.angus/angus-mail -->
+    <dependency>
+        <groupId>org.eclipse.angus</groupId>
+        <artifactId>angus-mail</artifactId>
+        <version>2.1.0-M1</version>
+        <scope>compile</scope>
+    </dependency>
+
+    <dependency>
+        <groupId>io.github.cdimascio</groupId>
+        <artifactId>dotenv-java</artifactId>
+        <version>3.2.0</version>
+    </dependency>
   </dependencies>
 
 
