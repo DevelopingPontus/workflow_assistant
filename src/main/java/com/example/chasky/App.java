@@ -1,10 +1,7 @@
 package com.example.chasky;
 
-import com.example.chasky.angusMail.EmailMonitor;
-import com.example.chasky.angusMail.EmailSender;
 import com.example.chasky.angusMail.EmailService;
 
-import io.github.cdimascio.dotenv.Dotenv;
 
 public class App {
     private EmailService emailService = new EmailService();
@@ -13,7 +10,13 @@ public class App {
     }
 
     public void run() {
+        // TODO: Options: getUser, createUser
 
+        // TODO: Enters userloop: gets user summary.
+        // TODO: Options: openTopic
+        
+        // TODO: Enters topicloop: gets topic content.
+        // TODO: Options: 
     }
 
 }

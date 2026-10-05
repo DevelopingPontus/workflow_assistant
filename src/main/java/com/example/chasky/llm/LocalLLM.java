@@ -1,4 +1,4 @@
-package com.example.chasky;
+package com.example.chasky.llm;
 
 import java.io.File;
 import java.io.IOException;
