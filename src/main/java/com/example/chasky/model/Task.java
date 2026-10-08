@@ -3,67 +3,53 @@ package com.example.chasky.model;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
+@ToString(callSuper = true)
+@Getter
+@Setter 
 public class Task extends Topic implements iPriority {
 
-    private static final Logger logger = LoggerFactory.getLogger(Task.class);
-
     private LocalDateTime ends;
-    private boolean isCompleted;
 
-    private Importance importance;
-
-    public Task() {
-        super();
-        this.isCompleted = false;
-        this.importance = Importance.NOT_SET;
-    }
-
-    public boolean isCompleted() {
-        return isCompleted;
-    }
-
-    public void setCompleted(boolean isCompleted) {
-        this.isCompleted = isCompleted;
+    public Task(String description) {
+        super(description);
     }
 
     @Override
     public float getPriorityScore() {
-        return calculatePriorityScore();
+        return this.calculatePriorityScore();
     }
 
     public float calculatePriorityScore() {
         float score = getImportance().getLevel();
 
-        if (this.getWhen() == null) {
-            logger.warn("Task '{}' has no end date set", this.getWhat());
-        }
-
-        if (this.getImportance() == null) {
-            logger.warn("Task '{}' has no importance set", this.getWhat());
-        }
-
         try {
-            int daysLeft = (int) ChronoUnit.DAYS.between(LocalDateTime.now(), this.ends);
-            score = this.getImportance().getLevel() * (1 / daysLeft);
-            logger.debug("Calculated priority score for '{}': {}", this.getWhat(), this.getPriorityScore());
+            float daysLeft = (float) ChronoUnit.HOURS.between(LocalDateTime.now(), this.ends) / 24;
+            System.out.println(daysLeft);
+            score = this.getImportance().getLevel() * (7f / daysLeft);
         } catch (Exception e) {
-            logger.error("Error calculating priority score for task '{}'", this.getWhat(), e);
+            System.out.println("No ends date set for task. Defaulting to set IMPORTANCE_LEVEL");
         }
 
         return score;
     }
 
     @Override
+    public String getWhat() {
+        return super.getWhat();
+    }
+
+    @Override
     public Importance getImportance() {
-        return importance;
+        return super.getImportance();
     }
 
     @Override
     public void setImportance(Importance importance) {
-        this.importance = importance;
+        super.setImportance(importance);
     }
 
 }

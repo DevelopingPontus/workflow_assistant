@@ -6,6 +6,8 @@ package com.example.chasky.model;
  */
 public interface iPriority {
 
+    String getWhat();
+
     Importance getImportance();
 
     void setImportance(Importance importance);
@@ -16,7 +18,5 @@ public interface iPriority {
      * @return the priority score
      */
     float getPriorityScore();
-
-    float calculatePriorityScore();
 
 }

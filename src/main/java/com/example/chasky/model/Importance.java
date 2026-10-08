@@ -1,5 +1,8 @@
 package com.example.chasky.model;
 
+import lombok.ToString;
+
+@ToString
 public enum Importance {
     NOT_SET(0),
     OPTIONAL(1),

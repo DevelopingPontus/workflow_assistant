@@ -11,7 +11,7 @@ import com.example.chasky.llm.LocalLLM;
 /**
  * Unit test for simple App.
  */
-public class AppTest {
+public class LlmTest {
     LocalLLM llm = new LocalLLM();
 
     @Test

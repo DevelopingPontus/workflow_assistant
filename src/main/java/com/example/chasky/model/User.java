@@ -4,6 +4,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+
+@ToString
+@Getter
+@Setter
 public class User {
     private String email;
 
@@ -15,18 +22,6 @@ public class User {
     public User(String email) {
         this.email = email;
         this.topics = new ArrayList<>();
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public List<Topic> getTopics() {
-        return topics;
     }
 
     public void addTopic(Topic topic) {
@@ -41,15 +36,30 @@ public class User {
     public List<iPriority> getTopicsByPrioriy() {
         List<iPriority> priorities = new ArrayList<>();
         for (Topic topic : topics) {
-            if (topic instanceof iPriority) {
+            if (topic instanceof iPriority && topic.isActive()) {
                 priorities.add((iPriority) topic);
             }
         }
-        Collections.sort(priorities, (a, b) -> Float.compare(a.getPriorityScore(), b.getPriorityScore()));
+        Collections.sort(priorities, (b, a) -> Float.compare(a.getPriorityScore(), b.getPriorityScore()));
         return priorities;
     }
 
+    public List<Topic> getActivTopics() {
+        List<Topic> activTopics = new ArrayList<>();
+        for (Topic topic : topics) {
+            if (topic.isActive())
+                activTopics.add(topic);
+        }
+        return activTopics;
+    }
 
-
+    public List<Topic> getInactivTopics() {
+        List<Topic> inactivTopics = new ArrayList<>();
+        for (Topic topic : topics) {
+            if (!topic.isActive())
+                inactivTopics.add(topic);
+        }
+        return inactivTopics;
+    }
 
 }
