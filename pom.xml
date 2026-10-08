@@ -24,7 +24,8 @@
     <maven.compiler.source>25</maven.compiler.source>
     <maven.compiler.target>25</maven.compiler.target>
     <jlama.version>0.8.4</jlama.version>   <!-- replace with the actual released version -->
-    <jni.classifier>${os.detected.name}-${os.detected.arch}</jni.classifier>    
+    <jni.classifier>${os.detected.name}-${os.detected.arch}</jni.classifier>   
+    <maven.compiler.proc>full</maven.compiler.proc> 
   </properties>
 
   <dependencies>
@@ -80,6 +81,22 @@
         <artifactId>dotenv-java</artifactId>
         <version>3.2.0</version>
     </dependency>
+
+    <!-- Source: https://mvnrepository.com/artifact/org.slf4j/slf4j-simple -->
+    <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-simple</artifactId>
+        <version>2.1.0-alpha1</version>
+        <scope>test</scope>
+    </dependency>
+
+    <!-- Source: https://mvnrepository.com/artifact/org.projectlombok/lombok -->
+    <dependency>
+        <groupId>org.projectlombok</groupId>
+        <artifactId>lombok</artifactId>
+        <version>1.18.48</version>
+        <scope>provided</scope>
+    </dependency>
   </dependencies>
 
 
@@ -106,7 +123,16 @@
         <plugin>
           <artifactId>maven-compiler-plugin</artifactId>
           <version>3.8.0</version>
-            <configuration>
+            <configuration>        
+              <source>25</source>
+              <target>25</target>
+              <annotationProcessorPaths>
+                  <path>
+                      <groupId>org.projectlombok</groupId>
+                      <artifactId>lombok</artifactId>
+                      <version>1.18.48</version>
+                  </path>
+              </annotationProcessorPaths>
               <arg>--add-modules=jdk.incubator.vector</arg>
             </configuration>
         </plugin>

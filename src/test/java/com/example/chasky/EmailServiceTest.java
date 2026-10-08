@@ -13,7 +13,6 @@ public class EmailServiceTest {
         try {
             emailService.sendMessageToSelf("Hi", "Hello world");
         } catch (Exception e) {
-            // TODO: handle exception
         }
     }
 }
