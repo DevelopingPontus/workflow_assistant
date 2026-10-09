@@ -1,17 +1,23 @@
 # WorkflowAssistant
 
-Be done with it.
-
-This project is a workflow assistant that helps the user work in a sustainable way. It uses a embedded AI model that communicates with the user via email. 
+This project helps the user stay mindfull while working. It uses an AI model that communicates with the user via email. The AI will be able to ask the user for details about topics that the user are working on. Then be able to update the topics and set a new time for checking back with the user.
 
 ## The plan
 
-This is a CLI application but for the AI model to use with the goal of supporting the users work efforts.
+This is a CLI application but for the AI model to use with the goal of supporting the users work efforts. The AI will be able to ask the user for details about topics that the user are working on. Then be able to update the topics and set a new time for checking back with the user via email.
 
 ## Classes
 
-I'll make them as I find the use for them. Super classes for objects that are a type and interfaces for for objects that do the same things.
+### Super class
+
+- `Topic`: This abstract super class represents the identifiing foundations that all sub classes will need.
+
+### Sub classes
+
+- `Task`: This class represents a task with a deadline.
+- `RecurringTask`: A task without a deadline.
+- `Problem`: Details about a problem the user wants to work on.
 
 ## Interaction
 
-The user will receive emails from the application. The user will be able to respond to those emails and the AI will be able to sugest actions based on logged work.
+The user will be able to interact by email. Getting reminders and questions about what you are working on. 

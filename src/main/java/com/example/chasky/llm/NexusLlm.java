@@ -27,11 +27,11 @@ public class NexusLlm {
             .temperature(temperature).maxTokens(maxTokens).build();
 
     // Model will be cashed in a folder called .modeljars under user on mac.
-    public String prompt(String query) {
+    public String prompt(String query, String system) {
         ModelJarRuntime runtime = ModelJars.openRuntime(MODEL);
         InferencePipeline pipeline = runtime.pipeline();
         ModelPrompt prompt = runtime.chatTemplate().render(
-                List.of(ChatMessage.user(query)));
+                List.of(ChatMessage.system(system), ChatMessage.user(query)));
         return pipeline.generate(prompt, options);
     }
 

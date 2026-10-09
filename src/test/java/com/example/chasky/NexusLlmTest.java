@@ -11,7 +11,7 @@ public class NexusLlmTest {
 
     @Test
     public void shouldQueryLlmAndReturnString() {
-        String response = llm.prompt("Hello");
+        String response = llm.prompt("Hello","");
         assertTrue(!response.isEmpty());
     }
 }
