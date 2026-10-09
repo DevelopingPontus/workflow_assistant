@@ -67,6 +67,12 @@
       <artifactId>king3djbl.nexus-medical-gguf.q4_k_m</artifactId>
       <version>1.0.0-q4_k_m.1</version>
     </dependency>
+    <dependency>
+      <groupId>org.modeljars.huggingface</groupId>
+      <artifactId>qwen.qwen2.5-3b-instruct-gguf.q4_k_m</artifactId>
+      <version>2.5.0-q4_k_m.1</version>
+    </dependency>
+    
 
     <!-- Source: https://mvnrepository.com/artifact/org.eclipse.angus/angus-mail -->
     <dependency>
