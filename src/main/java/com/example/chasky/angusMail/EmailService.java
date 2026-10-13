@@ -13,7 +13,7 @@ public class EmailService {
     final String smtpHost = "smtp.gmail.com";
     final int port = 587;
     final String username = env.get("USER_NAME");
-    final String password = env.get("PASSWORD");
+    final String password = env.get("APP_PASSWORD");
     final String mbox = "inbox";
     final int freq = 4;
 

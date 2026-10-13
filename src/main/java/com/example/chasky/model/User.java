@@ -1,6 +1,5 @@
 package com.example.chasky.model;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -37,7 +36,7 @@ public class User {
     public List<iPriority> getTopicsByPrioriy() {
         List<iPriority> priorities = new ArrayList<>();
         for (Topic topic : topics) {
-            if (topic instanceof iPriority && topic.isActive()) {
+            if (topic instanceof iPriority && topic.getActive()) {
                 priorities.add((iPriority) topic);
             }
         }
@@ -48,7 +47,7 @@ public class User {
     public List<Topic> getActivTopics() {
         List<Topic> activTopics = new ArrayList<>();
         for (Topic topic : topics) {
-            if (topic.isActive())
+            if (topic.getActive())
                 activTopics.add(topic);
         }
         return activTopics;
@@ -57,7 +56,7 @@ public class User {
     public List<Topic> getInactivTopics() {
         List<Topic> inactivTopics = new ArrayList<>();
         for (Topic topic : topics) {
-            if (!topic.isActive())
+            if (!topic.getActive())
                 inactivTopics.add(topic);
         }
         return inactivTopics;
