@@ -6,9 +6,7 @@ import java.lang.reflect.Method;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -84,7 +82,7 @@ public class App {
 
         String email = scanner.nextLine().trim();
 
-        if (email.equals("BACK")) {
+        if (email.equalsIgnoreCase("BACK")) {
             return;
         }
 
@@ -96,8 +94,6 @@ public class App {
             User newUser = new User(email);
             users.add(newUser);
             topicOptionsLoop(newUser);
-        } else if (email != null && email.equals("BACK")) {
-
         } else {
             System.out.println("Invalid email format. " + email);
             newUserLoop();
@@ -193,7 +189,7 @@ public class App {
 
         String pick = scanner.nextLine().trim();
 
-        if (pick.equals("BACK")) {
+        if (pick.equalsIgnoreCase("BACK")) {
             return;
         }
 

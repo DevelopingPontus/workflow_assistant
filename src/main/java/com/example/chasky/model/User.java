@@ -36,7 +36,7 @@ public class User {
     public List<iPriority> getTopicsByPrioriy() {
         List<iPriority> priorities = new ArrayList<>();
         for (Topic topic : topics) {
-            if (topic instanceof iPriority && topic.getActive()) {
+            if (topic instanceof iPriority && topic.getActive() == true) {
                 priorities.add((iPriority) topic);
             }
         }

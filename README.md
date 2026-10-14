@@ -20,4 +20,4 @@ This is a CLI application but for the AI model to use with the goal of supportin
 
 ## Interaction
 
-The user will be able to interact by email. Getting reminders and questions about what you are working on. 
+The user will be able to interact by email. Getting reminders and questions about what you are working on.
