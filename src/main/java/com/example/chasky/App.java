@@ -14,7 +14,6 @@ import java.util.Scanner;
 import java.util.TreeMap;
 import java.util.regex.Pattern;
 
-import com.example.chasky.llm.AnimateSlide;
 import com.example.chasky.model.Problem;
 import com.example.chasky.model.RecurringTask;
 import com.example.chasky.model.Task;
@@ -27,15 +26,15 @@ public class App {
     private List<User> users;
 
     private MockData mockData;
-    private AnimateSlide animate;
+    private Insulter insulter;
 
     public App() {
         this.scanner = new Scanner(System.in);
         this.users = new ArrayList<>();
 
         this.mockData = new MockData(users);
-        this.animate = new AnimateSlide();
-        animate.setupOutputCapture();
+
+        this.insulter = new Insulter();
     }
 
     public void run() {
@@ -55,23 +54,25 @@ public class App {
             System.out.println("");
             System.out.println("Enter INDEX of user in list to open or enter NEW to crete new user. ");
         }
-
         String pick = scanner.nextLine().trim();
-        animate.fromSlide();
 
         if (pick.equalsIgnoreCase("NEW")) {
+            printSpacing();
             newUserLoop();
         } else {
             try {
                 int index = Integer.parseInt(pick);
                 if (index < users.size()) {
                     User user = users.get(index);
+                    printSpacing();
                     topicOptionsLoop(user);
                 } else {
                     System.out.println("Index out of bounds. Expected: 0 - " + (users.size() - 1));
+                    insulter.printInsult();
                 }
             } catch (NumberFormatException e) {
-                System.out.println("Invalid INDEX. " + pick);
+                System.out.println("Invalid input: " + pick);
+                insulter.printInsult();
             }
         }
         userOptionsLoop();
@@ -81,14 +82,10 @@ public class App {
         printSection("New User");
         System.out.println("");
         System.out.println("Enter EMAIL of new user or BACK");
-
-        animate.toSlide();
-        animate.slideRight();
         String email = scanner.nextLine().trim();
-        animate.fromSlide();
 
         if (email.equalsIgnoreCase("BACK")) {
-            animate.slideRightReverse();
+            printSpacing();
             return;
         }
 
@@ -99,11 +96,13 @@ public class App {
         if (email != null && p.matcher(email).matches()) {
             User newUser = new User(email);
             users.add(newUser);
+            printSpacing();
             topicOptionsLoop(newUser);
         } else {
             System.out.println("Invalid email format. " + email);
-            newUserLoop();
+            insulter.printInsult();
         }
+        newUserLoop();
     }
 
     private void topicOptionsLoop(User user) {
@@ -122,17 +121,26 @@ public class App {
         String pick = scanner.nextLine().trim();
 
         if (pick.equalsIgnoreCase("NEW")) {
+            printSpacing();
             newTopicLoop(user);
         } else if (pick.equalsIgnoreCase("BACK")) {
+            printSpacing();
             return;
         } else {
             try {
                 int index = Integer.parseInt(pick);
-                Topic topic = ((Topic) user.getTopicsByPrioriy().get(index));
-                editTopicLoop(topic);
+                if (topics.size() > index) {
+                    Topic topic = ((Topic) user.getTopicsByPrioriy().get(index));
+                    printSpacing();
+                    editTopicLoop(topic);
+                } else {
+                    System.out.println("Invalid input. ");
+                    insulter.printInsult();
+                }
             } catch (NumberFormatException e) {
                 System.out.println("");
                 System.out.println("Invalid input: " + pick + ". Please enter a INDEX of topic, NEW or BACK. ");
+                insulter.printInsult();
             }
         }
         topicOptionsLoop(user);
@@ -151,21 +159,26 @@ public class App {
         String pick = scanner.nextLine().trim();
 
         if (pick.equalsIgnoreCase("BACK")) {
+            printSpacing();
             return;
         } else if (pick.equals("1")) {
             Task task = new Task();
             user.addTopic(task);
+            printSpacing();
             editTopicLoop((Topic) task);
         } else if (pick.equals("2")) {
             RecurringTask recurringTask = new RecurringTask();
             user.addTopic(recurringTask);
+            printSpacing();
             editTopicLoop((Topic) recurringTask);
         } else if (pick.equals("3")) {
             Problem problem = new Problem();
             user.addTopic(problem);
+            printSpacing();
             editTopicLoop((Topic) problem);
         } else {
             System.out.println("Invalid input: " + pick);
+            insulter.printInsult();
             newTopicLoop(user);
         }
     }
@@ -197,6 +210,7 @@ public class App {
         String pick = scanner.nextLine().trim();
 
         if (pick.equalsIgnoreCase("BACK")) {
+            printSpacing();
             return;
         }
 
@@ -292,7 +306,7 @@ public class App {
 
     // Helper functions
     private void printSection(String title) {
-        System.out.println("\n".repeat(50) + "=".repeat(150));
+        System.out.println("\n".repeat(5) + "=".repeat(150));
         System.out.println("  " + title);
         System.out.println("=".repeat(150));
     }
@@ -300,6 +314,10 @@ public class App {
     private void printSubsection(String subtitle) {
         System.out.println("\n  " + subtitle);
         System.out.println("  " + "-".repeat(148));
+    }
+
+    private void printSpacing() {
+        System.out.println("\n".repeat(50));
     }
 
     private <T> Map<String, Method> extractSettersByFieldName(Class<T> clazz, Map<String, Method> setterByFieldName) {
