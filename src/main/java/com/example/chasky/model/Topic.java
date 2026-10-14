@@ -9,7 +9,7 @@ import lombok.ToString;
 
 @ToString
 @Getter
-@Setter 
+@Setter
 public abstract class Topic {
 
     private LocalDateTime created;
@@ -43,8 +43,8 @@ public abstract class Topic {
     public boolean getActive() {
         return active;
     }
-    
-    public void setActive(boolean active)   {
+
+    public void setActive(boolean active) {
         this.active = active;
     }
 

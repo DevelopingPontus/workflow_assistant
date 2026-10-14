@@ -28,6 +28,7 @@ public class App {
     // private AppLLM appLLM;
 
     private MockData mockData;
+    private AnimateSlide animate;
 
     public App() {
         this.scanner = new Scanner(System.in);
@@ -35,6 +36,8 @@ public class App {
         this.users = new ArrayList<>();
 
         this.mockData = new MockData(users);
+        this.animate = new AnimateSlide();
+        animate.setupOutputCapture();
     }
 
     public void run() {
@@ -54,8 +57,9 @@ public class App {
             System.out.println("");
             System.out.println("Enter INDEX of user in list to open or enter NEW to crete new user. ");
         }
-
+        
         String pick = scanner.nextLine().trim();
+        animate.fromSlide();
 
         if (pick.equalsIgnoreCase("NEW")) {
             newUserLoop();
@@ -80,9 +84,13 @@ public class App {
         System.out.println("");
         System.out.println("Enter EMAIL of new user or BACK");
 
+        animate.toSlide();
+        animate.slideRight();
         String email = scanner.nextLine().trim();
+        animate.fromSlide();
 
         if (email.equalsIgnoreCase("BACK")) {
+            animate.slideRightReverse();
             return;
         }
 
@@ -105,11 +113,11 @@ public class App {
 
         printSection("Topics");
         printSubsection("Indexes by Priority score");
-        for (int i = 0; i < topics.size(); i++) {
-            iPriority priority = topics.get(i);
-            System.out.printf("%-3d | Topic: %-60s | Priority Score: %s%n",
-                    i, priority.getWhat(), priority.getPriorityScore());
-        }
+            for (int i = 0; i < topics.size(); i++) {
+                iPriority priority = topics.get(i);
+                System.out.printf("%-3d | Topic: %-30s | Priority Score: %s%n",
+                        i, priority.getWhat(), priority.getPriorityScore());
+            }
         System.out.println("");
         System.out.println("Enter INDEX of topic to open, NEW or BACK: ");
 
