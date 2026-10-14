@@ -1,16 +1,19 @@
 package com.example.chasky;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.TreeMap;
 import java.util.regex.Pattern;
 
-import com.example.chasky.model.Importance;
 import com.example.chasky.model.Problem;
 import com.example.chasky.model.RecurringTask;
 import com.example.chasky.model.Task;
@@ -22,86 +25,66 @@ public class App {
     private Scanner scanner;
     private List<User> users;
 
+    // private AppLLM appLLM;
+
+    private MockData mockData;
+
     public App() {
         this.scanner = new Scanner(System.in);
         // TODO: Make users persistent across runs
         this.users = new ArrayList<>();
 
-        mockData(users);
-    }
-
-    private void mockData(List<User> users) {
-        User p = new User("p@gamil.com");
-        User q = new User("q@gamil.com");
-        this.users.add(p);
-        this.users.add(q);
-        List<Task> t = List.of(new Task("Do this"), new Task("Do that"));
-        t.get(0).setImportance(Importance.CRITICAL);
-        t.get(0).setEnds(LocalDateTime.now().plusDays(2));
-        t.get(0).setWhat("This");
-        t.get(1).setImportance(Importance.CRITICAL);
-        t.get(1).setEnds(LocalDateTime.now().plusDays(7));
-        t.get(1).setWhat("That");
-
-        p.getTopics().addAll(t);
+        this.mockData = new MockData(users);
     }
 
     public void run() {
-        optionsLoop();
+        userOptionsLoop();
     }
 
-    private void optionsLoop() {
-        // Screen options
-        String what = "Users:";
-        // if
-        String ifNoUser = "No users registered. Please create one first. ";
-        // else
-        List<String> userIndexes = new ArrayList<>();
-        for (User user : users) {
-            userIndexes.add("\n" + "Index:" + users.indexOf(user) + " " + user.getEmail());
-        }
-        String how = "Enter INDEX of user in list to read or enter NEW to crete new user. ";
-        // if
-        String invalidIndex = "Invalid INDEX. ";
-
-        // Logic
-        System.out.println("");
-        System.out.println(what);
+    private void userOptionsLoop() {
+        printSection("Users");
         if (users.isEmpty()) {
-            System.out.println(ifNoUser);
+            System.out.println("No users registered. Please create one first. ");
             newUserLoop();
         } else {
-            System.out.println(userIndexes);
-            printInstructions(how);
+            for (User user : users) {
+                System.out.printf("%-3d | Email: %s%n",
+                        users.indexOf(user), user.getEmail());
+            }
+            System.out.println("");
+            System.out.println("Enter INDEX of user in list to open or enter NEW to crete new user. ");
         }
 
-        String pick = scanner.next().trim();
+        String pick = scanner.nextLine().trim();
 
         if (pick.equalsIgnoreCase("NEW")) {
             newUserLoop();
         } else {
             try {
                 int index = Integer.parseInt(pick);
-                User user = users.get(index);
-                topicOptionsLoop(user);
+                if (index < users.size()) {
+                    User user = users.get(index);
+                    topicOptionsLoop(user);
+                } else {
+                    System.out.println("Index out of bounds. Expected: 0 - " + (users.size() - 1));
+                }
             } catch (NumberFormatException e) {
-                System.out.println(invalidIndex);
+                System.out.println("Invalid INDEX. " + pick);
             }
         }
-        optionsLoop();
+        userOptionsLoop();
     }
 
     private void newUserLoop() {
-        // Screen options
-        String how = "Enter name of new user or BACK";
-        // if
-        String invalidFormat = "Invalid email format. ";
-
-        // Logic
+        printSection("New User");
         System.out.println("");
-        System.out.println(how);
+        System.out.println("Enter EMAIL of new user or BACK");
 
         String email = scanner.nextLine().trim();
+
+        if (email.equalsIgnoreCase("BACK")) {
+            return;
+        }
 
         // Checks if email is valid format.
         String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@" +
@@ -111,153 +94,205 @@ public class App {
             User newUser = new User(email);
             users.add(newUser);
             topicOptionsLoop(newUser);
-        } else if (email != null && email.equals("BACK")) {
-
         } else {
-            System.out.println(invalidFormat);
+            System.out.println("Invalid email format. " + email);
             newUserLoop();
         }
     }
 
     private void topicOptionsLoop(User user) {
-        // Screen options
-        String what = "Topic index:";
-        List<String> topicIndexes = new ArrayList<>();
-        for (iPriority priority : user.getTopicsByPrioriy()) {
-            topicIndexes.add("\n" + "Index:" + user.getTopicsByPrioriy().indexOf(priority) + " Topic:"
-                    + priority.getWhat() + " Priority score:"
-                    + priority.getPriorityScore());
-        }
-        String how = "Enter INDEX of topic to open, NEW or BACK. ";
-        // if
-        String invalidInput = "Invalid input. Please enter a INDEX of topic, NEW or BACK. ";
+        List<iPriority> topics = user.getTopicsByPrioriy();
 
-        // Logic
+        printSection("Topics");
+        printSubsection("Indexes by Priority score");
+        for (int i = 0; i < topics.size(); i++) {
+            iPriority priority = topics.get(i);
+            System.out.printf("%-3d | Topic: %-60s | Priority Score: %s%n",
+                    i, priority.getWhat(), priority.getPriorityScore());
+        }
         System.out.println("");
-        System.out.println(what);
-        System.out.println(topicIndexes);
-        System.out.println(how);
+        System.out.println("Enter INDEX of topic to open, NEW or BACK: ");
 
         String pick = scanner.nextLine().trim();
 
         if (pick.equalsIgnoreCase("NEW")) {
-            newTopicLoop();
+            newTopicLoop(user);
         } else if (pick.equalsIgnoreCase("BACK")) {
-
+            return;
         } else {
             try {
                 int index = Integer.parseInt(pick);
                 Topic topic = ((Topic) user.getTopicsByPrioriy().get(index));
                 editTopicLoop(topic);
             } catch (NumberFormatException e) {
-                System.out.println(invalidInput);
+                System.out.println("");
+                System.out.println("Invalid input: " + pick + ". Please enter a INDEX of topic, NEW or BACK. ");
             }
         }
         topicOptionsLoop(user);
     }
 
-    private void newTopicLoop() {
-        // Screen options
-        String indexes = "Index:1 Task(Has a deadline), " + "Index:2 RecurringTask(Does not have a deadline), " +
-                "Index:3 Problem(Something you want to improve or solve). ";
-        String how = "Enter INDEX of the topic type you want to create or enter BACK. ";
-        // if
-        String howDescription = "Please enter the description of your task:";
-        // else
-        String invalidInput = "Invalid input. ";
-
-        // Logic
-        printInstructions(indexes);
-        System.out.println(how);
+    private void newTopicLoop(User user) {
+        printSection("New Topic for " + user.getEmail());
+        printSubsection("Options");
+        System.out.println("\nIndex:1 Task(Has a deadline), " +
+                "\nIndex:2 RecurringTask(Does not have a deadline), " +
+                "\nIndex:3 Problem(Something you want to improve or solve). ");
+        System.out.println("");
+        System.out.println("Enter INDEX of the topic type you want to create or enter BACK. ");
 
         String pick = scanner.nextLine().trim();
 
         if (pick.equalsIgnoreCase("BACK")) {
+            return;
         } else if (pick.equals("1")) {
-            System.out.println(howDescription);
-            String description = scanner.nextLine().trim();
-            Task task = new Task(description);
+            Task task = new Task();
+            user.addTopic(task);
             editTopicLoop((Topic) task);
         } else if (pick.equals("2")) {
-            System.out.println(howDescription);
-            String description = scanner.nextLine().trim();
-            RecurringTask recurringTask = new RecurringTask(description);
+            RecurringTask recurringTask = new RecurringTask();
+            user.addTopic(recurringTask);
             editTopicLoop((Topic) recurringTask);
         } else if (pick.equals("3")) {
-            System.out.println(howDescription);
-            String description = scanner.nextLine().trim();
-            Problem problem = new Problem(description);
+            Problem problem = new Problem();
+            user.addTopic(problem);
             editTopicLoop((Topic) problem);
         } else {
-            System.out.println(invalidInput);
+            System.out.println("Invalid input: " + pick);
+            newTopicLoop(user);
         }
     }
 
     private void editTopicLoop(Topic topic) {
-        Map<String, Method> setterByFieldName = getSettersByFieldName(topic);
+        Map<String, Method> setterByFieldName = extractSettersByFieldName(topic.getClass(), new HashMap<>());
+        Map<String, Method> getterByFieldName = extractGettersByFieldName(topic.getClass(), new HashMap<>());
 
-        // Static screen options
-        String how = "Enter FIELD_NAME to rewrite a field value or EXIT. ";
+        printSection(topic.getClass().getSimpleName() + ": " + topic.getWhat());
 
-        // Logic
+        printSubsection("Fields and Values");
+        List<String> fieldNames = new ArrayList<>(getterByFieldName.keySet().stream().toList());
+        Collections.sort(fieldNames);
+        for (String field : fieldNames) {
+            try {
+                var value = getterByFieldName.get(field).invoke(topic);
+                System.out.printf("%-30s : %s%n", field, value);
+            } catch (IllegalAccessException | InvocationTargetException e) {
+                System.out.println("Could not read value for " + field);
+            }
+        }
+        printSubsection("Latest statuses");
+        getLatestStatuses(topic).forEach((timestamp, status) -> System.out.printf("%-30s : %s%n", timestamp, status));
+        printSubsection("Options");
+        System.out.println("FIELD_NAMEs:" + setterByFieldName.keySet());
         System.out.println("");
-        System.out.println(topic.toString());
-        System.out.println(getLatestStatuses(topic));
-        System.out.println("FIELD_NAMES:" + setterByFieldName.keySet());
+        System.out.println("Enter a FIELD_NAME to edit or BACK: ");
 
-        System.out.println(how);
         String pick = scanner.nextLine().trim();
+
+        if (pick.equalsIgnoreCase("BACK")) {
+            return;
+        }
 
         if (setterByFieldName.containsKey(pick)) {
             Method setter = setterByFieldName.get(pick);
+            Class<?> paramType = setter.getParameterTypes()[0];
+            Object[] enumConstants = null;
 
             System.out.println("");
-            System.out.println(topic.toString());
-            System.out.println(getLatestStatuses(topic));
-            System.out.println("Enter new value for " + pick + ":");
+            System.out.printf("Enter new VALUE for %s:%n", pick.toUpperCase());
 
-            String value = scanner.nextLine().trim();
-
-            if (!value.isBlank()) {
+            // Show options based on parameter type
+            if (paramType.isEnum()) {
+                enumConstants = paramType.getEnumConstants();
+                System.out.println("Valid options:");
+                for (int i = 0; i < enumConstants.length; i++) {
+                    System.out.printf("  %d. %s%n", i, enumConstants[i]);
+                }
+                System.out.println("");
+                System.out.print("Enter index value: ");
                 try {
-                    setter.invoke(topic, value);
-                    editTopicLoop(topic);
+                    int index = scanner.nextInt();
+                    Object selectedValue = enumConstants[index];
+                    setter.invoke(topic, selectedValue);
+                } catch (Exception e) {
+                    System.out.println("Invalid input. ");
+                }
+            } else if (paramType == boolean.class) {
+                System.out.println("Valid options: true | false");
+                try {
+                    Boolean boolValue = scanner.nextBoolean();
+                    setter.invoke(topic, boolValue);
+                } catch (Exception e) {
+                    System.out.println("Invalid input. ");
+                }
+            } else if (paramType == int.class || paramType == Integer.class) {
+                System.out.println("Expected: Integer value");
+                try {
+                    int intValue = scanner.nextInt();
+                    setter.invoke(topic, intValue);
+                } catch (Exception e) {
+                    System.out.println("Invalid input. ");
+                }
+            } else if (paramType == String.class) {
+                System.out.println("Expected: Text string");
+                try {
+                    String stringValue = scanner.nextLine().trim();
+                    setter.invoke(topic, stringValue);
+                } catch (Exception e) {
+                    System.out.println("Error setting value of " + pick);
+                }
+            } else if (paramType == LocalDateTime.class) {
+                System.out.println("Expected: Date and time (yyyy-MM-dd HH:mm:ss)");
+                try {
+                    String input = scanner.nextLine().trim();
+                    LocalDateTime dateTimeValue = LocalDateTime.parse(input,
+                            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+                    setter.invoke(topic, dateTimeValue);
+                } catch (Exception e) {
+                    System.out.println("Error setting value of " + pick);
+                }
+            } else if (paramType == TreeMap.class) {
+                System.out.println("Expected: Status update");
+                try {
+                    // Get the existing TreeMap using getter
+                    TreeMap<LocalDateTime, String> statusUpdates = (TreeMap<LocalDateTime, String>) topic
+                            .getStatusUpdates();
+                    System.out.println("");
+                    System.out.println("Enter status message:");
+                    String statusMessage = scanner.nextLine().trim();
+
+                    statusUpdates.put(LocalDateTime.now(), statusMessage);
+
+                    setter.invoke(topic, statusUpdates);
+
+                    System.out.println("Status update added!");
+
+                } catch (Exception e) {
+                    System.out.println("Error adding status update: " + e.getMessage());
+                }
+            } else {
+                System.out.printf("Expected: %s%n", paramType.getSimpleName());
+                try {
+                    var inputValue = scanner.nextLine();
+                    setter.invoke(topic, inputValue);
                 } catch (Exception e) {
                     System.out.println("Error setting value of " + pick);
                 }
             }
         }
-
-        if (topic.getNextTimeToCheckWithUser() == null) {
-            topic.setNextTimeToCheckWithUser(LocalDateTime.now().minusDays(1));
-        }
-        if (pick.equalsIgnoreCase("EXIT")) {
-            if (topic.getNextTimeToCheckWithUser().isBefore(LocalDateTime.now()) && topic.isActive()) {
-                System.out.println(topic.toString());
-                System.out.println(getLatestStatuses(topic));
-
-                System.out.println("Set how many hours untill next check with user.");
-                String newDateTime = scanner.nextLine().trim();
-                try {
-                    topic.setNextTimeToCheckWithUser(LocalDateTime.now().plusHours(Long.parseLong(newDateTime)));
-                } catch (Exception e) {
-                    System.out.println("Error parsing new LocalDateTime. Setting next check in 1 day.");
-                    topic.setNextTimeToCheckWithUser(LocalDateTime.now().plusDays(1));
-                }
-            }
-        } else {
-            System.out.println("Invalid input. Please try again.");
-            editTopicLoop(topic);
-        }
+        editTopicLoop(topic);
     }
 
     // Helper functions
-    private Map<String, Method> getSettersByFieldName(Topic topic) {
-        Map<String, Method> setterByFieldName = new HashMap<>();
+    private void printSection(String title) {
+        System.out.println("\n".repeat(50) + "=".repeat(150));
+        System.out.println("  " + title);
+        System.out.println("=".repeat(150));
+    }
 
-        setterByFieldName = extractSettersByFieldName(topic.getClass(), new HashMap<>());
-
-        return setterByFieldName;
+    private void printSubsection(String subtitle) {
+        System.out.println("\n  " + subtitle);
+        System.out.println("  " + "-".repeat(148));
     }
 
     private <T> Map<String, Method> extractSettersByFieldName(Class<T> clazz, Map<String, Method> setterByFieldName) {
@@ -281,14 +316,35 @@ public class App {
         return setterByFieldName;
     }
 
+    private <T> Map<String, Method> extractGettersByFieldName(Class<T> clazz, Map<String, Method> getterByFieldName) {
+        Class<?> currentClass = clazz;
+
+        while (currentClass != null && currentClass != Object.class) {
+            Field[] fields = currentClass.getDeclaredFields();
+
+            for (Field field : fields) {
+                String fieldName = field.getName();
+                try {
+                    String methodName = "get" + capitalizeFirstLetter(fieldName);
+                    Method method = clazz.getMethod(methodName);
+                    getterByFieldName.put(fieldName, method);
+                } catch (NoSuchMethodException e) {
+                    System.out.println("Getter method for " + fieldName + " not found.");
+                }
+            }
+            currentClass = currentClass.getSuperclass();
+            try {
+                getterByFieldName.remove("statusUpdates");
+            } catch (Exception e) {
+                // TODO: handle exception
+            }
+        }
+        return getterByFieldName;
+    }
+
     private String capitalizeFirstLetter(String field) {
         String methodName = Character.toUpperCase(field.charAt(0)) + field.substring(1);
         return methodName;
-    }
-
-    private void printInstructions(String options) {
-        System.out.println("");
-        System.out.println(options);
     }
 
     private Map<LocalDateTime, String> getLatestStatuses(Topic topic) {

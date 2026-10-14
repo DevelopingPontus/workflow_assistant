@@ -10,27 +10,26 @@ import lombok.ToString;
 public class RecurringTask extends Topic implements iPriority {
 
 
-    public RecurringTask(String description) {
-        super(description);
+    public RecurringTask() {
     }
 
     @Override
     public float getPriorityScore() {
-        return getImportance().getLevel();
+        return super.getImportance().getLevel();
     }
 
     @Override 
     public String getWhat() {
-        return getWhat();
+        return super.getWhat();
     }
 
     @Override
     public Importance getImportance() {
-        return getImportance();
+        return super.getImportance();
     }
 
     @Override
     public void setImportance(Importance importance) {
-        this.setImportance(importance);
+        super.setImportance(importance);
     }
 }

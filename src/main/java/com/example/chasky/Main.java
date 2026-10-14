@@ -6,6 +6,6 @@ public class Main {
     public static void main(String[] args) throws MessagingException {
         App app = new App();
         app.run();
-    }
 
+    }
 }

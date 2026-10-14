@@ -8,10 +8,8 @@ import lombok.ToString;
 @Getter
 @Setter 
 public class Problem extends Topic {
-    private String solution;
 
-    public Problem(String description) {
-        super(description);
+    public Problem() {
     }
     
 }

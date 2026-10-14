@@ -14,8 +14,7 @@ public class Task extends Topic implements iPriority {
 
     private LocalDateTime ends;
 
-    public Task(String description) {
-        super(description);
+    public Task() {
     }
 
     @Override
@@ -28,10 +27,9 @@ public class Task extends Topic implements iPriority {
 
         try {
             float daysLeft = (float) ChronoUnit.HOURS.between(LocalDateTime.now(), this.ends) / 24;
-            System.out.println(daysLeft);
             score = this.getImportance().getLevel() * (7f / daysLeft);
         } catch (Exception e) {
-            System.out.println("No ends date set for task. Defaulting to set IMPORTANCE_LEVEL");
+            System.out.println("No ends at date set for task. Defaulting to set IMPORTANCE_LEVEL");
         }
 
         return score;

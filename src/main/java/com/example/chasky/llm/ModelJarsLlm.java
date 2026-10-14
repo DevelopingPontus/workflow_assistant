@@ -1,6 +1,6 @@
 package com.example.chasky.llm;
 
-import static org.modeljars.catalog.King3djbl_Nexus_Medical_Gguf_Q4_K_M.MODEL;
+import static org.modeljars.catalog.Qwen_Qwen2_5_3b_Instruct_Gguf_Q4_K_M.MODEL;
 
 import com.integrallis.models.api.ModelPrompt;
 import com.integrallis.models.api.SamplingOptions;
@@ -11,14 +11,14 @@ import java.util.List;
 import org.modeljars.ModelJarRuntime;
 import org.modeljars.ModelJars;
 
-public class NexusLlm {
+public class ModelJarsLlm {
     float temperature = 0;
     int maxTokens = 128;
 
-    public NexusLlm() {
+    public ModelJarsLlm() {
     }
 
-    public NexusLlm(float temperature, int maxTokens) {
+    public ModelJarsLlm(float temperature, int maxTokens) {
         this.temperature = temperature;
         this.maxTokens = maxTokens;
     }
@@ -26,7 +26,7 @@ public class NexusLlm {
     SamplingOptions options = SamplingOptions.builder()
             .temperature(temperature).maxTokens(maxTokens).build();
 
-    // Model will be cashed in a folder called .modeljars under user on mac.
+    // // Model will be cashed in a folder called .modeljars under user on mac.
     public String prompt(String query) {
         ModelJarRuntime runtime = ModelJars.openRuntime(MODEL);
         InferencePipeline pipeline = runtime.pipeline();
