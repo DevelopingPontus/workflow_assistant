@@ -13,8 +13,7 @@ import lombok.ToString;
 public abstract class Topic {
 
     private LocalDateTime created;
-    // I only want the latest status to show with toString
-    @ToString.Exclude
+
     private TreeMap<LocalDateTime, String> statusUpdates;
 
     private String who;
@@ -28,8 +27,6 @@ public abstract class Topic {
 
     private Importance importance;
 
-    private LocalDateTime nextTimeToCheckWithUser;
-
     public Topic() {
         this.created = LocalDateTime.now();
         this.statusUpdates = new TreeMap<>();
@@ -41,11 +38,14 @@ public abstract class Topic {
         this.how = "";
         this.why = "";
         this.importance = Importance.NOT_SET;
-        this.nextTimeToCheckWithUser = LocalDateTime.now();
     }
 
-    public boolean getActive(){
+    public boolean getActive() {
         return active;
+    }
+    
+    public void setActive(boolean active)   {
+        this.active = active;
     }
 
 }
