@@ -14,6 +14,7 @@ import java.util.Scanner;
 import java.util.TreeMap;
 import java.util.regex.Pattern;
 
+import com.example.chasky.llm.AnimateSlide;
 import com.example.chasky.model.Problem;
 import com.example.chasky.model.RecurringTask;
 import com.example.chasky.model.Task;
@@ -25,14 +26,11 @@ public class App {
     private Scanner scanner;
     private List<User> users;
 
-    // private AppLLM appLLM;
-
     private MockData mockData;
     private AnimateSlide animate;
 
     public App() {
         this.scanner = new Scanner(System.in);
-        // TODO: Make users persistent across runs
         this.users = new ArrayList<>();
 
         this.mockData = new MockData(users);
@@ -57,7 +55,7 @@ public class App {
             System.out.println("");
             System.out.println("Enter INDEX of user in list to open or enter NEW to crete new user. ");
         }
-        
+
         String pick = scanner.nextLine().trim();
         animate.fromSlide();
 
@@ -111,13 +109,13 @@ public class App {
     private void topicOptionsLoop(User user) {
         List<iPriority> topics = user.getTopicsByPrioriy();
 
-        printSection("Topics");
+        printSection("Topics of " + user.getEmail());
         printSubsection("Indexes by Priority score");
-            for (int i = 0; i < topics.size(); i++) {
-                iPriority priority = topics.get(i);
-                System.out.printf("%-3d | Topic: %-30s | Priority Score: %s%n",
-                        i, priority.getWhat(), priority.getPriorityScore());
-            }
+        for (int i = 0; i < topics.size(); i++) {
+            iPriority priority = topics.get(i);
+            System.out.printf("%-3d | Topic: %-60s | Priority Score: %s%n",
+                    i, priority.getWhat(), priority.getPriorityScore());
+        }
         System.out.println("");
         System.out.println("Enter INDEX of topic to open, NEW or BACK: ");
 
@@ -143,9 +141,10 @@ public class App {
     private void newTopicLoop(User user) {
         printSection("New Topic for " + user.getEmail());
         printSubsection("Options");
-        System.out.println("\nIndex:1 Task(Has a deadline), " +
-                "\nIndex:2 RecurringTask(Does not have a deadline), " +
-                "\nIndex:3 Problem(Something you want to improve or solve). ");
+        System.out.println(
+                "\n 1: Task(Has a deadline), " +
+                        "\n 2: RecurringTask(Does not have a deadline), " +
+                        "\n 3: Problem(Something you want to improve or solve). ");
         System.out.println("");
         System.out.println("Enter INDEX of the topic type you want to create or enter BACK. ");
 
