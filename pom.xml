@@ -29,13 +29,6 @@
   </properties>
 
   <dependencies>
-      <!-- Source: https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter -->
-    <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter</artifactId>
-        <version>4.2.0-M2</version>
-        <scope>compile</scope>
-    </dependency>
     <!-- Source: https://mvnrepository.com/artifact/org.springframework.ai/spring-ai-client-chat -->
     <dependency>
         <groupId>org.springframework.ai</groupId>
@@ -56,12 +49,6 @@
       <artifactId>junit</artifactId>
       <version>4.13.2</version>
       <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-simple</artifactId>
-      <version>2.0.20</version>
     </dependency>
 
     <dependency>
@@ -86,18 +73,8 @@
     </dependency>
     <dependency>
       <groupId>org.modeljars.huggingface</groupId>
-      <artifactId>king3djbl.nexus-medical-gguf.q4_k_m</artifactId>
-      <version>1.0.0-q4_k_m.1</version>
-    </dependency>
-    <dependency>
-      <groupId>org.modeljars.huggingface</groupId>
       <artifactId>qwen.qwen2.5-3b-instruct-gguf.q4_k_m</artifactId>
       <version>2.5.0-q4_k_m.1</version>
-    </dependency>
-    <dependency>
-      <groupId>org.modeljars.huggingface</groupId>
-      <artifactId>bartowski.llama-3.2-3b-instruct-gguf.q4_k_m</artifactId>
-      <version>3.2.0-q4_k_m.1</version>
     </dependency>
     
 
@@ -115,20 +92,20 @@
         <version>3.2.0</version>
     </dependency>
 
-    <!-- Source: https://mvnrepository.com/artifact/org.slf4j/slf4j-simple -->
-    <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-simple</artifactId>
-        <version>2.1.0-alpha1</version>
-        <scope>test</scope>
-    </dependency>
-
     <!-- Source: https://mvnrepository.com/artifact/org.projectlombok/lombok -->
     <dependency>
         <groupId>org.projectlombok</groupId>
         <artifactId>lombok</artifactId>
         <version>1.18.48</version>
         <scope>provided</scope>
+    </dependency>
+        
+    <!-- Source: https://mvnrepository.com/artifact/tools.jackson.core/jackson-databind -->
+    <dependency>
+        <groupId>tools.jackson.core</groupId>
+        <artifactId>jackson-databind</artifactId>
+        <version>3.2.3</version>
+        <scope>compile</scope>
     </dependency>
   </dependencies>
 
