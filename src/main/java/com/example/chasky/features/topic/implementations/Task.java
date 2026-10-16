@@ -1,0 +1,56 @@
+package com.example.chasky.features.topic.implementations;
+
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+
+import com.example.chasky.common.enums.Importance;
+import com.example.chasky.common.interfaces.iPriority;
+import com.example.chasky.features.topic.Topic;
+
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+
+@ToString(callSuper = true)
+@Getter
+@Setter 
+public class Task extends Topic implements iPriority {
+
+    private LocalDateTime ends;
+
+    public Task() {
+    }
+
+    @Override
+    public float getPriorityScore() {
+        return this.calculatePriorityScore();
+    }
+
+    public float calculatePriorityScore() {
+        float score = getImportance().getLevel();
+
+        try {
+            float daysLeft = (float) ChronoUnit.HOURS.between(LocalDateTime.now(), this.ends) / 24;
+            score = this.getImportance().getLevel() * (7f / daysLeft);
+        } catch (Exception e) {
+            System.out.println("No ends at date set for task. Defaulting to set IMPORTANCE_LEVEL");
+        }
+        return score;
+    }
+
+    @Override
+    public String getWhat() {
+        return super.getWhat();
+    }
+
+    @Override
+    public Importance getImportance() {
+        return super.getImportance();
+    }
+
+    @Override
+    public void setImportance(Importance importance) {
+        super.setImportance(importance);
+    }
+
+}

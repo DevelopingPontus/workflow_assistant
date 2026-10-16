@@ -2,3 +2,4 @@ models/
 target/
 
 .env
+user_data.json
