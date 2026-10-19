@@ -33,7 +33,7 @@ public class Task extends Topic implements iPriority {
             float daysLeft = (float) ChronoUnit.HOURS.between(LocalDateTime.now(), this.ends) / 24;
             score = this.getImportance().getLevel() * (7f / daysLeft);
         } catch (Exception e) {
-            System.out.println("No ends at date set for task. Defaulting to set IMPORTANCE_LEVEL");
+            
         }
         return score;
     }

@@ -1,17 +1,17 @@
 package com.example.chasky.features.app;
 
-import com.example.chasky.features.tui.TUI;
+import com.example.chasky.features.tui.AppTUI;
 
 public class App {
     
-    private TUI tui;
+    private AppTUI appTui;
 
-    public App(TUI tui) {
-        this.tui = tui;
+    public App(AppTUI appTui) {
+        this.appTui = appTui;
     }
 
     public void run() {
-        tui.run();
+        appTui.run();
     }
 
 }

@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import com.example.chasky.features.user.User;
@@ -12,18 +11,18 @@ import com.example.chasky.features.user.User;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 
-
 public class DataPersistence {
-    private final String filePath = "src/main/resources/user_data.json";
+    private final String filePath;
 
     ObjectMapper mapper;
 
-    public DataPersistence() {
+    public DataPersistence(String filePath) {
+        this.filePath = filePath;
         mapper = new ObjectMapper();
     }
 
     public List<User> readUsers() {
-        List<User> loadedUsers = Collections.synchronizedList(new ArrayList<>());
+        List<User> loadedUsers = new ArrayList<>();
         try {
             String jsonContent = Files.readString(Paths.get(filePath));
 
@@ -36,7 +35,6 @@ public class DataPersistence {
     }
 
     public void writeUsers(List<User> currentUsers) {
-
         try {
             String jsonOutput = mapper.writeValueAsString(currentUsers);
 
@@ -44,6 +42,17 @@ public class DataPersistence {
 
         } catch (IOException e) {
             System.out.println("Error writing users. " + e.getMessage());
+        }
+    }
+
+    public void writeEnv(String EMAIL, String APP_PASSWORD) {
+        String envFilePath = ".env";
+        
+        String content = "EMAIL=\"" + EMAIL + "\"\n" + "APP_PASSWORD=\"" + APP_PASSWORD + "\"";
+        try {
+            Files.writeString(Paths.get(envFilePath), content);
+        } catch (Exception e) {
+            System.out.println("Error writing .env file.");
         }
     }
 }
