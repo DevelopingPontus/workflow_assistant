@@ -18,21 +18,25 @@ import com.example.chasky.common.extras.Insulter;
 import com.example.chasky.common.interfaces.iPriority;
 import com.example.chasky.features.angusMail.EmailService;
 import com.example.chasky.features.topic.Topic;
+import com.example.chasky.features.topic.TopicService;
 import com.example.chasky.features.topic.implementations.Problem;
 import com.example.chasky.features.topic.implementations.RecurringTask;
 import com.example.chasky.features.topic.implementations.Task;
 import com.example.chasky.features.user.User;
+import com.example.chasky.features.user.UserService;
 
-public class TUI {
+public class AppTUI {
 
     private Scanner scanner;
-    private List<User> users;
+    private UserService userService;
+    private TopicService topicService;
 
     private EmailService emailService;
 
-    public TUI(List<User> users, EmailService emailService) {
+    public AppTUI(UserService userService, TopicService topicService, EmailService emailService) {
         this.scanner = new Scanner(System.in);
-        this.users = users;
+        this.userService = userService;
+        this.topicService = topicService;
         this.emailService = emailService;
     }
 
@@ -42,13 +46,13 @@ public class TUI {
 
     private void userOptionsLoop() {
         printSection("Users");
-        if (users.isEmpty()) {
+        if (userService.getUsers().isEmpty()) {
             System.out.println("No users registered. Please create one first. ");
             newUserLoop();
         } else {
-            for (User user : users) {
+            for (User user : userService.getUsers()) {
                 System.out.printf("%-3d | Email: %s%n",
-                        users.indexOf(user), user.getEmail());
+                        userService.getUsers().indexOf(user), user.getEmail());
             }
             System.out.println("");
             System.out.println("Enter INDEX of user in list, NEW or EXIT. ");
@@ -63,22 +67,20 @@ public class TUI {
         } else {
             try {
                 int index = Integer.parseInt(pick);
-                if (index >= 0 && index < users.size()) {
-                    User user = users.get(index);
+                if (index >= 0 && index < userService.getUsers().size()) {
+                    User user = userService.getUsers().get(index);
                     printSpacing();
                     topicOptionsLoop(user);
-                    userOptionsLoop();
                 } else {
-                    System.out.println("Index out of bounds. Expected: 0 - " + (users.size() - 1));
+                    System.out.println("Index out of bounds. Expected: 0 - " + (userService.getUsers().size() - 1));
                     Insulter.printInsult();
-                    userOptionsLoop();
                 }
             } catch (NumberFormatException e) {
                 System.out.println("Invalid input: " + pick);
                 Insulter.printInsult();
-                userOptionsLoop();
             }
         }
+        userOptionsLoop();
     }
 
     private void newUserLoop() {
@@ -98,7 +100,7 @@ public class TUI {
         Pattern p = Pattern.compile(emailRegex);
         if (email != null && p.matcher(email).matches()) {
             User newUser = new User(email);
-            users.add(newUser);
+            userService.getUsers().add(newUser);
             printSpacing();
             topicOptionsLoop(newUser);
         } else {
@@ -109,12 +111,12 @@ public class TUI {
     }
 
     private void topicOptionsLoop(User user) {
-        List<iPriority> topics = user.getTopicsByPrioriy();
+        List<iPriority> priorityTopics = topicService.getTopicsByPrioriy(user);
 
         printSection("Topics of " + user.getEmail());
         printSubsection("Indexes by Priority score");
-        for (int i = 0; i < topics.size(); i++) {
-            iPriority priority = topics.get(i);
+        for (int i = 0; i < priorityTopics.size(); i++) {
+            iPriority priority = priorityTopics.get(i);
             String topic = priority.getWhat();
 
             String wrapped = String.format("%-80s", topic).length() > 80
@@ -136,12 +138,12 @@ public class TUI {
             printSpacing();
             return;
         } else if (pick.equalsIgnoreCase("SEND")) {
-            sendEmailReport(user);
+            emailService.sendEmailReport(priorityTopics, user);
         } else {
             try {
                 int index = Integer.parseInt(pick);
-                if (topics.size() > index) {
-                    Topic topic = ((Topic) user.getTopicsByPrioriy().get(index));
+                if (priorityTopics.size() > index) {
+                    Topic topic = ((Topic) topicService.getTopicsByPrioriy(user).get(index));
                     printSpacing();
                     editTopicLoop(topic);
                 } else {
@@ -197,6 +199,7 @@ public class TUI {
     private void editTopicLoop(Topic topic) {
         Map<String, Method> setterByFieldName = extractSettersByFieldName(topic.getClass(), new HashMap<>());
         Map<String, Method> getterByFieldName = extractGettersByFieldName(topic.getClass(), new HashMap<>());
+        System.out.println(getterByFieldName.toString());
 
         printSection(topic.getClass().getSimpleName() + ": " + topic.getWhat());
 
@@ -212,7 +215,8 @@ public class TUI {
             }
         }
         printSubsection("Latest statuses");
-        getLatestStatuses(topic).forEach((timestamp, status) -> System.out.printf("%-30s : %s%n", timestamp, status));
+        topicService.getLatestStatuses(topic)
+                .forEach((timestamp, status) -> System.out.printf("%-30s : %s%n", timestamp, status));
         printSubsection("Options");
         System.out.println("FIELD_NAMEs:" + setterByFieldName.keySet());
         System.out.println("");
@@ -322,20 +326,6 @@ public class TUI {
         editTopicLoop(topic);
     }
 
-    // Helper functions
-    private void sendEmailReport(User user) {
-        List<iPriority> topics = user.getTopicsByPrioriy();
-        String body = "";
-        for (int i = 0; i < topics.size(); i++) {
-            iPriority priority = topics.get(i);
-            String topic = priority.getWhat();
-
-            body = body + (String.format("%-80s", topic) + "Priority score:" + priority.getPriorityScore() + "\n");
-
-        }
-        emailService.sendEmailToSelf("Report", body);
-    }
-
     private void printSection(String title) {
         System.out.println("\n".repeat(5) + "=".repeat(150));
         System.out.println("  " + title);
@@ -353,7 +343,6 @@ public class TUI {
 
     private <T> Map<String, Method> extractSettersByFieldName(Class<T> clazz, Map<String, Method> setterByFieldName) {
         Class<?> currentClass = clazz;
-
         while (currentClass != null && currentClass != Object.class) {
             Field[] fields = currentClass.getDeclaredFields();
 
@@ -374,7 +363,6 @@ public class TUI {
 
     private <T> Map<String, Method> extractGettersByFieldName(Class<T> clazz, Map<String, Method> getterByFieldName) {
         Class<?> currentClass = clazz;
-
         while (currentClass != null && currentClass != Object.class) {
             Field[] fields = currentClass.getDeclaredFields();
 
@@ -389,11 +377,11 @@ public class TUI {
                 }
             }
             currentClass = currentClass.getSuperclass();
-            try {
-                getterByFieldName.remove("statusUpdates");
-            } catch (Exception e) {
-                // TODO: handle exception
-            }
+        }
+        try {
+            getterByFieldName.remove("statusUpdates");
+        } catch (Exception e) {
+            // TODO: handle exception
         }
         return getterByFieldName;
     }
@@ -401,15 +389,5 @@ public class TUI {
     private String capitalizeFirstLetter(String field) {
         String methodName = Character.toUpperCase(field.charAt(0)) + field.substring(1);
         return methodName;
-    }
-
-    private Map<LocalDateTime, String> getLatestStatuses(Topic topic) {
-        Map<LocalDateTime, String> statuses = topic.getStatusUpdates();
-        if (statuses.size() > 10) {
-            for (int i = 10; statuses.size() > 10; i--) {
-                statuses = topic.getStatusUpdates().tailMap(LocalDateTime.now().minusDays(i));
-            }
-        }
-        return statuses;
     }
 }
