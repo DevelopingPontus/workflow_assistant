@@ -1,4 +1,4 @@
-package com.example.chasky.features.setup;
+package com.example.chasky.features.tui.setup;
 
 import java.util.Scanner;
 import java.util.regex.Pattern;

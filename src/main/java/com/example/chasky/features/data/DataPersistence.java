@@ -47,7 +47,7 @@ public class DataPersistence {
 
     public void writeEnv(String EMAIL, String APP_PASSWORD) {
         String envFilePath = ".env";
-        
+
         String content = "EMAIL=\"" + EMAIL + "\"\n" + "APP_PASSWORD=\"" + APP_PASSWORD + "\"";
         try {
             Files.writeString(Paths.get(envFilePath), content);

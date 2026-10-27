@@ -1,4 +1,4 @@
-package com.example.chasky.mock;
+package com.example.chasky.features.data.mock;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;

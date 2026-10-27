@@ -14,6 +14,7 @@ import java.util.Scanner;
 import java.util.TreeMap;
 import java.util.regex.Pattern;
 
+import com.example.chasky.common.enums.Importance;
 import com.example.chasky.common.extras.Insulter;
 import com.example.chasky.common.interfaces.iPriority;
 import com.example.chasky.features.angusMail.EmailService;
@@ -25,11 +26,15 @@ import com.example.chasky.features.topic.implementations.Task;
 import com.example.chasky.features.user.User;
 import com.example.chasky.features.user.UserService;
 
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
+
 public class AppTUI {
 
     private Scanner scanner;
     private UserService userService;
     private TopicService topicService;
+    private ObjectMapper mapper;
 
     private EmailService emailService;
 
@@ -38,6 +43,8 @@ public class AppTUI {
         this.userService = userService;
         this.topicService = topicService;
         this.emailService = emailService;
+
+        mapper = new ObjectMapper();
     }
 
     public void run() {
@@ -45,17 +52,16 @@ public class AppTUI {
     }
 
     private void userOptionsLoop() {
-        printSection("Users");
+        printSection("\nUsers");
         if (userService.getUsers().isEmpty()) {
-            System.out.println("No users registered. Please create one first. ");
+            System.out.println("\nNo users registered. Please create one first. ");
             newUserLoop();
         } else {
             for (User user : userService.getUsers()) {
                 System.out.printf("%-3d | Email: %s%n",
                         userService.getUsers().indexOf(user), user.getEmail());
             }
-            System.out.println("");
-            System.out.println("Enter INDEX of user in list, NEW or EXIT. ");
+            System.out.println("\nEnter INDEX of user in list, NEW or EXIT. ");
         }
         String pick = scanner.nextLine().trim();
 
@@ -72,11 +78,11 @@ public class AppTUI {
                     printSpacing();
                     topicOptionsLoop(user);
                 } else {
-                    System.out.println("Index out of bounds. Expected: 0 - " + (userService.getUsers().size() - 1));
+                    System.out.println("\nIndex out of bounds. Expected: 0 - " + (userService.getUsers().size() - 1));
                     Insulter.printInsult();
                 }
             } catch (NumberFormatException e) {
-                System.out.println("Invalid input: " + pick);
+                System.out.println("\nInvalid input: " + pick);
                 Insulter.printInsult();
             }
         }
@@ -84,9 +90,8 @@ public class AppTUI {
     }
 
     private void newUserLoop() {
-        printSection("New User");
-        System.out.println("");
-        System.out.println("Enter EMAIL of new user or BACK");
+        printSection("\nNew User");
+        System.out.println("\nEnter EMAIL of new user or BACK");
         String email = scanner.nextLine().trim();
 
         if (email.equalsIgnoreCase("BACK")) {
@@ -104,17 +109,18 @@ public class AppTUI {
             printSpacing();
             topicOptionsLoop(newUser);
         } else {
-            System.out.println("Invalid email format. " + email);
+            System.out.println("\nInvalid email format. " + email);
             Insulter.printInsult();
             newUserLoop();
         }
     }
 
     private void topicOptionsLoop(User user) {
-        List<iPriority> priorityTopics = topicService.getTopicsByPrioriy(user);
+        // List<iPriority> priorityTopics = topicService.getTopicsByPrioriyScore(user);
+        List<Task> priorityTopics = topicService.getTasksByPrioriyDate(user);
 
-        printSection("Topics of " + user.getEmail());
-        printSubsection("Indexes by Priority score");
+        printSection("Tasks of " + user.getEmail());
+        printSubsection("Indexes by Priority date");
         for (int i = 0; i < priorityTopics.size(); i++) {
             iPriority priority = priorityTopics.get(i);
             String topic = priority.getWhat();
@@ -123,11 +129,11 @@ public class AppTUI {
                     ? topic.substring(0, 77) + "..."
                     : String.format("%-80s", topic);
 
-            System.out.printf("%-3d | Topic: %s | Priority Score: %s%n",
+            System.out.printf("%-3d | Topic: %s | Priority date: %s%n",
                     i, wrapped, priority.getPriorityScore());
         }
-        System.out.println("");
-        System.out.println("Enter INDEX of topic to open, NEW, BACK or SEND to get report to mail: ");
+        System.out.println(
+                "\nEnter INDEX of topic to open, NEW, JSON to add multiple tasks as json, SEND to get report to mail or BACK ");
 
         String pick = scanner.nextLine().trim();
 
@@ -138,21 +144,40 @@ public class AppTUI {
             printSpacing();
             return;
         } else if (pick.equalsIgnoreCase("SEND")) {
-            emailService.sendEmailReport(priorityTopics, user);
+            // emailService.sendEmailReportOfPriorityScore(priorityTopics, user);
+            emailService.sendEmailReportOfTasksByDatePriority(priorityTopics, user);
+        } else if (pick.equalsIgnoreCase("JSON")) {
+            String jsonSchema = mapper.writeValueAsString(Collections.singletonList(new Task()));
+            System.out.println("\nJSON schema \n" + jsonSchema);
+            System.out.println("\nValid inputs for Importance:");
+            for (Importance importance : Importance.values()) {
+                System.out.println(importance);
+            }
+            System.out.println("\nEnter ");
+
+            String jsonContent = scanner.nextLine().trim();
+            try {
+                List<Task> edit = mapper.readValue(jsonContent, new TypeReference<List<Task>>() {
+                });
+                edit.forEach(topic -> user.addTopic(topic));
+            } catch (Exception e) {
+                System.out.println("\nInvalid JSON format");
+            }
+
         } else {
             try {
                 int index = Integer.parseInt(pick);
                 if (priorityTopics.size() > index) {
-                    Topic topic = ((Topic) topicService.getTopicsByPrioriy(user).get(index));
+                    // topicService.getTopicsByPrioriyScore(user).get(index));
+                    Topic topic = ((Topic) topicService.getTasksByPrioriyDate(user).get(index));
                     printSpacing();
                     editTopicLoop(topic);
                 } else {
-                    System.out.println("Invalid input. ");
+                    System.out.println("\nInvalid input. ");
                     Insulter.printInsult();
                 }
             } catch (NumberFormatException e) {
-                System.out.println("");
-                System.out.println("Invalid input: " + pick + ". Please enter a INDEX of topic, NEW or BACK. ");
+                System.out.println("\nInvalid input: " + pick + ". Please enter a INDEX of topic, NEW or BACK. ");
                 Insulter.printInsult();
             }
         }
@@ -161,13 +186,12 @@ public class AppTUI {
 
     private void newTopicLoop(User user) {
         printSection("New Topic for " + user.getEmail());
-        printSubsection("Options");
+        printSubsection("\nOptions");
         System.out.println(
                 "\n 1: Task(Has a deadline), " +
                         "\n 2: RecurringTask(Does not have a deadline), " +
                         "\n 3: Problem(Something you want to improve or solve). ");
-        System.out.println("");
-        System.out.println("Enter INDEX of the topic type you want to create or enter BACK. ");
+        System.out.println("\nEnter INDEX of the topic type you want to create or enter BACK. ");
 
         String pick = scanner.nextLine().trim();
 
@@ -199,7 +223,6 @@ public class AppTUI {
     private void editTopicLoop(Topic topic) {
         Map<String, Method> setterByFieldName = extractSettersByFieldName(topic.getClass(), new HashMap<>());
         Map<String, Method> getterByFieldName = extractGettersByFieldName(topic.getClass(), new HashMap<>());
-        System.out.println(getterByFieldName.toString());
 
         printSection(topic.getClass().getSimpleName() + ": " + topic.getWhat());
 
@@ -211,7 +234,7 @@ public class AppTUI {
                 var value = getterByFieldName.get(field).invoke(topic);
                 System.out.printf("%-30s : %s%n", field, value);
             } catch (IllegalAccessException | InvocationTargetException e) {
-                System.out.println("Could not read value for " + field);
+                System.out.println("\nCould not read value for " + field);
             }
         }
         printSubsection("Latest statuses");
@@ -219,8 +242,7 @@ public class AppTUI {
                 .forEach((timestamp, status) -> System.out.printf("%-30s : %s%n", timestamp, status));
         printSubsection("Options");
         System.out.println("FIELD_NAMEs:" + setterByFieldName.keySet());
-        System.out.println("");
-        System.out.println("Enter a FIELD_NAME to edit or BACK: ");
+        System.out.println("\nEnter a FIELD_NAME to edit value, JSON to edit all values with a json or BACK: ");
 
         String pick = scanner.nextLine().trim();
 
@@ -240,89 +262,102 @@ public class AppTUI {
             // Show options based on parameter type
             if (paramType.isEnum()) {
                 enumConstants = paramType.getEnumConstants();
-                System.out.println("Valid options:");
+                System.out.println("\nValid options:");
                 for (int i = 0; i < enumConstants.length; i++) {
                     System.out.printf("  %d. %s%n", i, enumConstants[i]);
                 }
                 System.out.println("");
-                System.out.print("Enter index value: ");
+                System.out.print("\nEnter index value: ");
                 try {
                     int index = scanner.nextInt();
                     Object selectedValue = enumConstants[index];
                     setter.invoke(topic, selectedValue);
                 } catch (Exception e) {
-                    System.out.println("Invalid input. ");
+                    System.out.println("\nInvalid input. ");
                     Insulter.printInsult();
                 }
             } else if (paramType == boolean.class) {
-                System.out.println("Valid options: true | false");
+                System.out.println("\nValid options: true | false");
                 try {
                     Boolean boolValue = scanner.nextBoolean();
                     setter.invoke(topic, boolValue);
                 } catch (Exception e) {
-                    System.out.println("Invalid input. ");
+                    System.out.println("\nInvalid input. ");
                     Insulter.printInsult();
                 }
             } else if (paramType == int.class || paramType == Integer.class) {
-                System.out.println("Expected: Integer value");
+                System.out.println("\nExpected: Integer value");
                 try {
                     int intValue = scanner.nextInt();
                     setter.invoke(topic, intValue);
                 } catch (Exception e) {
-                    System.out.println("Invalid input. ");
+                    System.out.println("\nInvalid input. ");
                     Insulter.printInsult();
                 }
             } else if (paramType == String.class) {
-                System.out.println("Expected: Text string");
+                System.out.println("\nExpected: Text string");
                 try {
                     String stringValue = scanner.nextLine().trim();
                     setter.invoke(topic, stringValue);
                 } catch (Exception e) {
-                    System.out.println("Error setting value of " + pick);
+                    System.out.println("\nError setting value of " + pick);
                     Insulter.printInsult();
                 }
             } else if (paramType == LocalDateTime.class) {
-                System.out.println("Expected: Date and time (yyyy-MM-dd HH:mm:ss)");
+                System.out.println("\nExpected: Date and time (yyyy-MM-dd HH:mm:ss)");
                 try {
                     String input = scanner.nextLine().trim();
                     LocalDateTime dateTimeValue = LocalDateTime.parse(input,
                             DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
                     setter.invoke(topic, dateTimeValue);
                 } catch (Exception e) {
-                    System.out.println("Error setting value of " + pick);
+                    System.out.println("\nError setting value of " + pick);
                     Insulter.printInsult();
                 }
             } else if (paramType == TreeMap.class) {
-                System.out.println("Expected: Status update");
+                System.out.println("\nExpected: Status update");
                 try {
                     // Get the existing TreeMap using getter
                     TreeMap<LocalDateTime, String> statusUpdates = (TreeMap<LocalDateTime, String>) topic
                             .getStatusUpdates();
-                    System.out.println("");
-                    System.out.println("Enter status message:");
+                    System.out.println("\nEnter status message:");
                     String statusMessage = scanner.nextLine().trim();
 
                     statusUpdates.put(LocalDateTime.now(), statusMessage);
 
                     setter.invoke(topic, statusUpdates);
 
-                    System.out.println("Status update added!");
+                    System.out.println("\nStatus update added!");
 
                 } catch (Exception e) {
-                    System.out.println("Error adding status update: " + e.getMessage());
+                    System.out.println("\nError adding status update: " + e.getMessage());
                     Insulter.printInsult();
                 }
             } else {
-                System.out.printf("Expected: %s%n", paramType.getSimpleName());
+                System.out.printf("\nExpected: %s%n", paramType.getSimpleName());
                 try {
                     var inputValue = scanner.nextLine();
                     setter.invoke(topic, inputValue);
                 } catch (Exception e) {
-                    System.out.println("Error setting value of " + pick);
+                    System.out.println("\nError setting value of " + pick);
                     Insulter.printInsult();
                 }
             }
+        } else if (pick.equalsIgnoreCase("JSON")) {
+            String jsonSchema = mapper.writeValueAsString(topic);
+            System.out.println("\nJSON schema \n" + jsonSchema);
+            System.out.println("\nEnter ");
+
+            String jsonContent = scanner.nextLine().trim();
+            try {
+                Topic edit = mapper.readValue(jsonContent, topic.getClass());
+                topic = edit;
+            } catch (Exception e) {
+                System.out.println("\nInvalid JSON format: \n " + jsonContent);
+            }
+
         }
+
         editTopicLoop(topic);
     }
 
@@ -353,7 +388,7 @@ public class AppTUI {
                     Method method = clazz.getMethod(methodName, field.getType());
                     setterByFieldName.put(fieldName, method);
                 } catch (NoSuchMethodException e) {
-                    System.out.println("Setter method for " + fieldName + " not found.");
+                    System.out.println("\nSetter method for " + fieldName + " not found.");
                 }
             }
             currentClass = currentClass.getSuperclass();
@@ -373,7 +408,7 @@ public class AppTUI {
                     Method method = clazz.getMethod(methodName);
                     getterByFieldName.put(fieldName, method);
                 } catch (NoSuchMethodException e) {
-                    System.out.println("Getter method for " + fieldName + " not found.");
+                    System.out.println("\nGetter method for " + fieldName + " not found.");
                 }
             }
             currentClass = currentClass.getSuperclass();

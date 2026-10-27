@@ -3,6 +3,8 @@ package com.example.chasky.features.angusMail;
 import java.util.List;
 
 import com.example.chasky.common.interfaces.iPriority;
+import com.example.chasky.features.topic.Topic;
+import com.example.chasky.features.topic.implementations.Task;
 import com.example.chasky.features.user.User;
 
 import io.github.cdimascio.dotenv.Dotenv;
@@ -45,7 +47,7 @@ public class EmailService {
         }
     }
 
-    public void sendEmailReport(List<iPriority> topics, User user) {
+    public void sendEmailReportOfPriorityScore(List<iPriority> topics, User user) {
         String body = "";
         for (int i = 0; i < topics.size(); i++) {
             iPriority priority = topics.get(i);
@@ -54,7 +56,19 @@ public class EmailService {
             body = body + (String.format("%-80s", topic) + "Priority score:" + priority.getPriorityScore() + "\n");
 
         }
-        sendEmail("Report", body, user.getEmail());
+        sendEmail("Priority report by score", body, user.getEmail());
+    }
+
+    public void sendEmailReportOfTasksByDatePriority(List<Task> topics, User user) {
+        String body = "";
+        for (int i = 0; i < topics.size(); i++) {
+            Task priority = topics.get(i);
+            String topic = priority.getWhat();
+
+            body = body + (String.format("%-80s", topic) + "Priority by date:" + priority.getEnds() + "\n");
+
+        }
+        sendEmail("Priority report by date", body, user.getEmail());
     }
 
 }

@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.example.chasky.common.interfaces.iPriority;
+import com.example.chasky.features.topic.implementations.Task;
 import com.example.chasky.features.user.User;
 
 public class TopicService {
@@ -16,7 +17,7 @@ public class TopicService {
      * 
      * @return
      */
-    public List<iPriority> getTopicsByPrioriy(User user) {
+    public List<iPriority> getTopicsByPrioriyScore(User user) {
         List<iPriority> priorities = new ArrayList<>();
         for (Topic topic : user.getTopics()) {
             if (topic instanceof iPriority && topic.getActive() == true) {
@@ -24,6 +25,17 @@ public class TopicService {
             }
         }
         Collections.sort(priorities, (b, a) -> Float.compare(a.getPriorityScore(), b.getPriorityScore()));
+        return priorities;
+    }
+
+    public List<Task> getTasksByPrioriyDate(User user) {
+        List<Task> priorities = new ArrayList<>();
+        for (Topic topic : user.getTopics()) {
+            if (topic instanceof Task && topic.getActive() == true) {
+                priorities.add((Task) topic);
+            }
+        }
+        Collections.sort(priorities, (b, a) -> a.getEnds().compareTo(b.getEnds()));
         return priorities;
     }
 

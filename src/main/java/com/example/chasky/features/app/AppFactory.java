@@ -7,19 +7,19 @@ import java.util.List;
 
 import com.example.chasky.features.angusMail.EmailService;
 import com.example.chasky.features.data.DataPersistence;
-import com.example.chasky.features.setup.EmailSetupTUI;
+import com.example.chasky.features.data.mock.MockData;
 import com.example.chasky.features.topic.TopicService;
 import com.example.chasky.features.tui.AppTUI;
+import com.example.chasky.features.tui.setup.EmailSetupTUI;
 import com.example.chasky.features.user.User;
 import com.example.chasky.features.user.UserService;
-import com.example.chasky.mock.MockData;
 
 public class AppFactory {
     private DataPersistence dataPersistence;
     private List<User> users;
 
-    String mockDataFile = "src/main/resources/mock_user_data.json";
-    String dataFile = "src/main/resources/user_data.json";
+    String mockDataFile = "./mock_user_data.json";
+    String dataFile = "./user_data.json";
 
     public AppFactory() {
     }
@@ -72,48 +72,47 @@ public class AppFactory {
         }
         return emailService;
     }
-    
-    public void ensureGitignore() {
-    String gitignorePath = ".gitignore";
-    String[] requiredEntries = {"models/", "target/", "", ".env", "user_data.json"};
-    String requiredContent = "models/\ntarget/\n\n.env\nuser_data.json";
-    
-    try {
-        Path path = Paths.get(gitignorePath);
-        
-        if (!Files.exists(path)) {
-            // Create new .gitignore
-            Files.writeString(path, requiredContent);
-            System.out.println(".gitignore created successfully.");
-        } else {
-            // Check if required entries exist
-            String currentContent = Files.readString(path);
-            boolean needsUpdate = false;
-            
-            for (String entry : requiredEntries) {
-                if (!entry.isEmpty() && !currentContent.contains(entry)) {
-                    needsUpdate = true;
-                    break;
-                }
-            }
-            
-            if (needsUpdate) {
-                // Append missing entries
-                String updated = currentContent;
-                if (!currentContent.endsWith("\n")) {
-                    updated += "\n";
-                }
-                updated += requiredContent;
-                Files.writeString(path, updated);
-                System.out.println(".gitignore updated with missing entries.");
-            } else {
-                System.out.println(".gitignore already exists with all required entries.");
-            }
-        }
-    } catch (Exception e) {
-        System.out.println("Error managing .gitignore: " + e.getMessage());
-    }
-}
 
+    public void ensureGitignore() {
+        String gitignorePath = ".gitignore";
+        String[] requiredEntries = { "models/", "target/", "", ".env", "user_data.json" };
+        String requiredContent = "models/\ntarget/\n\n.env\nuser_data.json";
+
+        try {
+            Path path = Paths.get(gitignorePath);
+
+            if (!Files.exists(path)) {
+                // Create new .gitignore
+                Files.writeString(path, requiredContent);
+                System.out.println(".gitignore created successfully.");
+            } else {
+                // Check if required entries exist
+                String currentContent = Files.readString(path);
+                boolean needsUpdate = false;
+
+                for (String entry : requiredEntries) {
+                    if (!entry.isEmpty() && !currentContent.contains(entry)) {
+                        needsUpdate = true;
+                        break;
+                    }
+                }
+
+                if (needsUpdate) {
+                    // Append missing entries
+                    String updated = currentContent;
+                    if (!currentContent.endsWith("\n")) {
+                        updated += "\n";
+                    }
+                    updated += requiredContent;
+                    Files.writeString(path, updated);
+                    System.out.println(".gitignore updated with missing entries.");
+                } else {
+                    System.out.println(".gitignore already exists with all required entries.");
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Error managing .gitignore: " + e.getMessage());
+        }
+    }
 
 }
